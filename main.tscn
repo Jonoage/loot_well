@@ -1,0 +1,91 @@
+[gd_scene load_steps=17 format=3 uid="uid://c7u7n0phjwgti"]
+
+[ext_resource type="Script" uid="uid://cqq2v5d7cm147" path="res://player.gd" id="1_1bvp3"]
+[ext_resource type="Script" uid="uid://7rqm1vvxywi8" path="res://chamber_generator.gd" id="1_kek77"]
+[ext_resource type="PackedScene" uid="uid://cuuelkrybnq10" path="res://basic_platform.tscn" id="2_4c57u"]
+[ext_resource type="Texture2D" uid="uid://dhfbgvgeyurfh" path="res://Assets/Images/hexman.png" id="2_lquwl"]
+[ext_resource type="PackedScene" uid="uid://cw4kvhjm3rm2y" path="res://collectible.tscn" id="3_efxa6"]
+[ext_resource type="PackedScene" uid="uid://d4bkdl3a0j7ix" path="res://spring_item.tscn" id="4_dg77c"]
+[ext_resource type="PackedScene" uid="uid://bojl04jdp8wij" path="res://extra_jump.tscn" id="5_w48qg"]
+[ext_resource type="PackedScene" uid="uid://b5t20keyrx8xo" path="res://loot_bag.tscn" id="5_ycdy4"]
+[ext_resource type="PackedScene" uid="uid://o0unxgy2dvme" path="res://spring.tscn" id="6_5vw27"]
+[ext_resource type="PackedScene" uid="uid://b4r51x4qj6wb6" path="res://rope.tscn" id="6_vivmo"]
+[ext_resource type="Script" uid="uid://ds6u5n4vvymbd" path="res://loot_label.gd" id="7_272bh"]
+[ext_resource type="Script" uid="uid://cvwdnudwp3qql" path="res://inventory.gd" id="7_efxa6"]
+[ext_resource type="Texture2D" uid="uid://wemotvisadqp" path="res://Assets/Images/Godoy.png" id="8_5vw27"]
+[ext_resource type="Script" uid="uid://bj0vkpfgv15pr" path="res://item.gd" id="10_dg77c"]
+[ext_resource type="Texture2D" uid="uid://bdyadcwl8qekj" path="res://Assets/Images/ring_texture.png" id="11_ycdy4"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5vw27"]
+radius = 22.0
+height = 50.0
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_kek77")
+sky_color = Color(0.47843137, 0.627451, 0.88235295, 1)
+platform_scenes = Array[PackedScene]([ExtResource("2_4c57u")])
+collectible_scene = ExtResource("3_efxa6")
+spring_item_scene = ExtResource("4_dg77c")
+extra_jump_scene = ExtResource("5_w48qg")
+rope_scene = ExtResource("6_vivmo")
+loot_bag_scene = ExtResource("5_ycdy4")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["player", "playera"]]
+z_index = 99
+z_as_relative = false
+position = Vector2(-61, -71)
+script = ExtResource("1_1bvp3")
+spring_scene = ExtResource("6_5vw27")
+
+[node name="loot_label" type="Label" parent="CharacterBody2D"]
+offset_left = 13.0
+offset_top = -46.0
+offset_right = 207.0
+offset_bottom = 4.0
+script = ExtResource("7_272bh")
+
+[node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D"]
+texture = ExtResource("2_lquwl")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+position = Vector2(-1, -4)
+shape = SubResource("CapsuleShape2D_5vw27")
+
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D"]
+
+[node name="Inventory" type="Node" parent="CharacterBody2D"]
+script = ExtResource("7_efxa6")
+
+[node name="collectible" parent="." instance=ExtResource("3_efxa6")]
+visible = false
+position = Vector2(587, 1738)
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("7_efxa6")
+
+[node name="basic_platform" parent="." instance=ExtResource("2_4c57u")]
+position = Vector2(355, 214)
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+offset_left = -573.0
+offset_top = 7.0
+offset_right = -533.0
+offset_bottom = 47.0
+scale = Vector2(57.530506, 62.781395)
+texture = ExtResource("8_5vw27")
+
+[node name="item" type="Area2D" parent="."]
+visible = false
+script = ExtResource("10_dg77c")
+
+[node name="Sprite2D" type="Sprite2D" parent="item"]
+position = Vector2(-145, -65)
+scale = Vector2(0.08582868, -0.08429218)
+texture = ExtResource("11_ycdy4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="item"]
+
+[node name="rope" parent="." instance=ExtResource("6_vivmo")]
+
+[node name="extra_jump" parent="." instance=ExtResource("5_w48qg")]

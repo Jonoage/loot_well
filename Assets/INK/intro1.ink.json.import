@@ -1,0 +1,15 @@
+[remap]
+
+importer="inkgd.ink.json"
+type="Resource"
+uid="uid://c43a3q7fatqp3"
+path="res://.godot/imported/intro1.ink.json-b4a2e283047e7cb734476761ae46023d.res"
+
+[deps]
+
+source_file="res://Assets/INK/intro1.ink.json"
+dest_files=["res://.godot/imported/intro1.ink.json-b4a2e283047e7cb734476761ae46023d.res"]
+
+[params]
+
+compress=true

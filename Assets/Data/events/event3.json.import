@@ -1,0 +1,15 @@
+[remap]
+
+importer="inkgd.ink.json"
+type="Resource"
+uid="uid://13ua2ftsup1g"
+path="res://.godot/imported/event3.json-8e5f81bdbf8299e4fc693087e41d04bc.res"
+
+[deps]
+
+source_file="res://Assets/Data/events/event3.json"
+dest_files=["res://.godot/imported/event3.json-8e5f81bdbf8299e4fc693087e41d04bc.res"]
+
+[params]
+
+compress=true

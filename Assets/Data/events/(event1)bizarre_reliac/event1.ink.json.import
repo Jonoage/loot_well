@@ -1,0 +1,15 @@
+[remap]
+
+importer="inkgd.ink.json"
+type="Resource"
+uid="uid://btd78785b406f"
+path="res://.godot/imported/event1.ink.json-222063f6d318edd762934cff45c4c096.res"
+
+[deps]
+
+source_file="res://Assets/Data/events/(event1)bizarre_reliac/event1.ink.json"
+dest_files=["res://.godot/imported/event1.ink.json-222063f6d318edd762934cff45c4c096.res"]
+
+[params]
+
+compress=true

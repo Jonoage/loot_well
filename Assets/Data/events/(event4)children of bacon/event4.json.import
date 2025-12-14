@@ -1,0 +1,15 @@
+[remap]
+
+importer="inkgd.ink.json"
+type="Resource"
+uid="uid://ckgtkkq6m7oc7"
+path="res://.godot/imported/event4.json-6b92be8d3de05f2e40e48c888c2787bd.res"
+
+[deps]
+
+source_file="res://Assets/Data/events/(event4)children of bacon/event4.json"
+dest_files=["res://.godot/imported/event4.json-6b92be8d3de05f2e40e48c888c2787bd.res"]
+
+[params]
+
+compress=true

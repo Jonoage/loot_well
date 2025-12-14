@@ -1,0 +1,22 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://bf6frmb74ptbu"]
+
+[ext_resource type="FontFile" uid="uid://byrykjuijcklj" path="res://Assets/Fonts/Silkscreen-Regular.ttf" id="1_qyj8g"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n372q"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 10
+border_width_top = 5
+border_width_right = 10
+border_width_bottom = 5
+border_color = Color(1, 1, 1, 1)
+corner_detail = 1
+expand_margin_left = 10.0
+expand_margin_top = 6.0
+expand_margin_right = 10.0
+expand_margin_bottom = 6.0
+anti_aliasing = false
+
+[resource]
+Label/font_sizes/font_size = 16
+Label/fonts/font = ExtResource("1_qyj8g")
+Label/styles/normal = SubResource("StyleBoxFlat_n372q")

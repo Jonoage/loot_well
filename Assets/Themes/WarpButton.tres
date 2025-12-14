@@ -1,0 +1,32 @@
+[gd_resource type="Theme" load_steps=6 format=3 uid="uid://py05rbxx2xt6"]
+
+[ext_resource type="FontFile" uid="uid://xpwh0t4q0iap" path="res://Assets/Fonts/BebasNeue.ttf" id="1_1hsu5"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tedgd"]
+bg_color = Color(0, 0, 0, 1)
+skew = Vector2(0.365, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m4363"]
+bg_color = Color(1, 0.866667, 0, 1)
+skew = Vector2(0.365, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u44d5"]
+bg_color = Color(0, 0, 0, 1)
+skew = Vector2(0.365, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8pbgc"]
+bg_color = Color(0, 0, 0, 1)
+skew = Vector2(0.365, 0)
+
+[resource]
+Button/colors/font_color = Color(0.875, 0.875, 0.875, 1)
+Button/colors/font_focus_color = Color(0, 0, 0, 1)
+Button/colors/font_hover_color = Color(0, 0, 0, 1)
+Button/colors/font_hover_pressed_color = Color(0, 0, 0, 1)
+Button/colors/font_pressed_color = Color(0, 0, 0, 1)
+Button/font_sizes/font_size = 39
+Button/fonts/font = ExtResource("1_1hsu5")
+Button/styles/focus = SubResource("StyleBoxFlat_tedgd")
+Button/styles/hover = SubResource("StyleBoxFlat_m4363")
+Button/styles/normal = SubResource("StyleBoxFlat_u44d5")
+Button/styles/pressed = SubResource("StyleBoxFlat_8pbgc")

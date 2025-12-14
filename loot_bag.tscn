@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://b5t20keyrx8xo"]
+
+[ext_resource type="Script" uid="uid://cxijy7hl1p4jq" path="res://loot_bag.gd" id="1_ypdel"]
+[ext_resource type="Texture2D" uid="uid://dh1sigo6t4pf2" path="res://Assets/Images/newicon.png" id="2_vttog"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ypdel"]
+size = Vector2(104, 100)
+
+[node name="loot_bag" type="Area2D"]
+script = ExtResource("1_ypdel")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(-5.12, 5)
+texture = ExtResource("2_vttog")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2, -2)
+shape = SubResource("RectangleShape2D_ypdel")

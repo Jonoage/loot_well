@@ -1,0 +1,15 @@
+[remap]
+
+importer="inkgd.ink.json"
+type="Resource"
+uid="uid://caucxjl045yl2"
+path="res://.godot/imported/event2.ink.json-c80d45081e2779bccc25f992a068a631.res"
+
+[deps]
+
+source_file="res://Assets/Data/events/test folder/event2.ink.json"
+dest_files=["res://.godot/imported/event2.ink.json-c80d45081e2779bccc25f992a068a631.res"]
+
+[params]
+
+compress=true

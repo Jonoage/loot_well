@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b4r51x4qj6wb6"]
+
+[ext_resource type="Script" uid="uid://bw7uh6jpwfrgm" path="res://rope.gd" id="1_0756u"]
+
+[node name="rope" type="Area2D"]
+script = ExtResource("1_0756u")

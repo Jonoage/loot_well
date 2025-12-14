@@ -1,0 +1,25 @@
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://r1u661s1l40k"]
+
+[ext_resource type="FontFile" uid="uid://chyu8a3oankqb" path="res://Assets/Fonts/Title Fonts/Lexend.ttf" id="1_tms5u"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yo7oj"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 5
+corner_radius_bottom_right = 25
+corner_detail = 5
+shadow_color = Color(0.145098, 0.145098, 0.145098, 1)
+shadow_size = 2
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nx6jv"]
+content_margin_left = 42.0
+
+[resource]
+Panel/styles/panel = SubResource("StyleBoxFlat_yo7oj")
+RichTextLabel/font_sizes/normal_font_size = 26
+RichTextLabel/fonts/normal_font = ExtResource("1_tms5u")
+RichTextLabel/styles/normal = SubResource("StyleBoxEmpty_nx6jv")

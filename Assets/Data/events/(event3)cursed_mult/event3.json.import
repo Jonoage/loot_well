@@ -1,0 +1,15 @@
+[remap]
+
+importer="inkgd.ink.json"
+type="Resource"
+uid="uid://cclcmuuxqejoa"
+path="res://.godot/imported/event3.json-311bd7100fec775035c57d31a9369fb6.res"
+
+[deps]
+
+source_file="res://Assets/Data/events/(event3)cursed_mult/event3.json"
+dest_files=["res://.godot/imported/event3.json-311bd7100fec775035c57d31a9369fb6.res"]
+
+[params]
+
+compress=true

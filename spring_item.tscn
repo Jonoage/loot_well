@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://d4bkdl3a0j7ix"]
+
+[ext_resource type="Script" uid="uid://caucq3kfcap3o" path="res://collectible.gd" id="1_1g3p7"]
+[ext_resource type="Texture2D" uid="uid://c2pbgoqe5i3a6" path="res://Assets/Images/Arrow white.png" id="2_s3agy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_efxa6"]
+size = Vector2(39, 28)
+
+[node name="spring" type="Area2D"]
+z_index = 10
+z_as_relative = false
+script = ExtResource("1_1g3p7")
+item_name = "spring"
+item_id = "spring"
+can_pickup = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+z_as_relative = false
+shape = SubResource("RectangleShape2D_efxa6")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.039999403, 0.039999403)
+texture = ExtResource("2_s3agy")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

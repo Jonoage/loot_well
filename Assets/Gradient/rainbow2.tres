@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://kasehhg74ifc"]
+
+[ext_resource type="Shader" uid="uid://d3iygbbn00www" path="res://Assets/Gradient/rainbo.tres" id="1_wvy7s"]
+
+[resource]
+shader = ExtResource("1_wvy7s")
+shader_parameter/coin_shader_param = 0.1

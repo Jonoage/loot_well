@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://f6uctvnhmysu"]
+
+[ext_resource type="Shader" path="res://Assets/Gradient/coin.gdshader" id="1_die26"]
+[ext_resource type="Texture2D" uid="uid://canqxs0x6dr3u" path="res://Assets/Gradient/rainbow.tres" id="2_8q4dm"]
+
+[resource]
+shader = ExtResource("1_die26")
+shader_parameter/mix_amount = 7.4
+shader_parameter/gradient = ExtResource("2_8q4dm")
