@@ -4,14 +4,10 @@ signal inventory_changed
 signal item_added(item)
 signal item_removed(item)
 
-@export var max_slots := 20
+# Removed max_slots limit - inventory is now unlimited
 var items: Array = []
 
 func add_item(item_data: Dictionary) -> bool:
-	if items.size() >= max_slots:
-		print("Inventory full!")
-		return false
-	
 	items.append(item_data)
 	item_added.emit(item_data)
 	inventory_changed.emit()

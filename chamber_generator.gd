@@ -1,6 +1,8 @@
 # ===== CHAMBER_GENERATOR.GD =====
 extends Node2D
+@export var shop_scene: PackedScene  # Link to res://shop.tscn in the inspector
 
+var water: Node2D = null
 # Chamber dimensions
 @export var chamber_width := 1200.0
 @export var chamber_depth := 10000.0
@@ -13,10 +15,10 @@ extends Node2D
 @export var outer_bg_color := Color(0.4, 0.25, 0.15)
 @export var sky_color := Color(0.53, 0.81, 0.92)
 
-# Generation settings
+# Generation settings - UPDATED FOR FEWER PLATFORMS
 @export var chunk_height := 1000.0
-@export var platform_min_spacing := 150.0
-@export var platform_max_spacing := 300.0
+@export var platform_min_spacing := 120.0  # Was 80.0
+@export var platform_max_spacing := 400.0  # Was 300.0
 @export var platform_min_width := 200.0
 @export var platform_max_width := 800.0
 
@@ -30,9 +32,9 @@ extends Node2D
 
 # Spawn chances
 @export var spring_spawn_chance := 0.25
-@export var rope_spawn_chance := 0.15
+@export var rope_spawn_chance := 0.3  # Was 0.15 - more ropes
 @export var extra_jump_spawn_chance := 0.4
-@export var collectible_spawn_chance := 0.4
+@export var air_bubble_spawn_chance := 0.5  # Was 0.3 - even more air bubble spawners (50%!)
 
 # State
 var active_chunks := {}
@@ -48,11 +50,12 @@ func _ready():
 	
 	create_chamber_boundaries()
 	create_goal_zone()
-	call_deferred("spawn_starting_spring")
+	# Removed spawn_starting_spring() - no spring at spawn
 	call_deferred("spawn_loot_bag")
+	call_deferred("spawn_water")
 	
 	var num_chunks = int(ceil(chamber_depth / chunk_height)) + 2
-	for i in range(-2, num_chunks):
+	for i in range(0, num_chunks):  # Start at 0, not negative
 		generate_chunk(i)
 
 func _process(_delta):
@@ -61,7 +64,7 @@ func _process(_delta):
 	
 	var player_chunk = floor(player.global_position.y / chunk_height)
 	
-	for i in range(player_chunk - 2, player_chunk + 3):
+	for i in range(max(0, player_chunk - 2), player_chunk + 3):  # Don't go below 0
 		if not active_chunks.has(i):
 			generate_chunk(i)
 	
@@ -72,6 +75,58 @@ func _process(_delta):
 	
 	for chunk_id in chunks_to_remove:
 		remove_chunk(chunk_id)
+		
+func spawn_shop():
+	if not shop_scene:
+		shop_scene = load("res://shop.tscn")
+	
+	if not shop_scene:
+		print("Shop scene not found!")
+		return
+	
+	var floor_node = get_node_or_null("Floor")
+	if not floor_node:
+		print("Floor node not found!")
+		return
+	
+	var shop = shop_scene.instantiate()
+	add_child(shop)
+	# Position shop to the left of the loot bag
+	shop.global_position = Vector2(chamber_width / 2 - 250, floor_node.global_position.y - 120)
+	print("Shop spawned at: ", shop.global_position)
+
+func start_water_rising():
+	"""Called when player picks up the loot bag"""
+	if water and water.has_method("start_rising"):
+		water.start_rising()
+
+func spawn_water():
+	"""Spawn the water at the bottom of the chamber"""
+	var water_scene = preload("res://water.gd")
+	
+	# Create water node
+	water = Area2D.new()
+	water.set_script(water_scene)
+	
+	# Position at the bottom of the chamber BEFORE adding to tree
+	var floor_node = get_node_or_null("Floor")
+	if floor_node:
+		water.global_position = Vector2(0, floor_node.global_position.y)
+		print("Setting water position to floor Y:", floor_node.global_position.y)
+	else:
+		water.global_position = Vector2(0, wall_start_y + chamber_depth)
+		print("Setting water position to calculated bottom:", wall_start_y + chamber_depth)
+	
+	# Set water properties BEFORE adding to tree
+	water.max_height = chamber_depth
+	
+	# NOW add it to the tree (this triggers _ready())
+	add_child(water)
+	
+	# Set width after it's in the tree
+	water.set_water_width(chamber_width)
+	
+	print("Water spawned at bottom of chamber")
 
 func _unhandled_input(event):
 	if event is InputEventKey and event.pressed and event.keycode == KEY_R:
@@ -87,7 +142,7 @@ func regenerate_level():
 	active_chunks.clear()
 	
 	var num_chunks = int(ceil(chamber_depth / chunk_height)) + 2
-	for i in range(-2, num_chunks):
+	for i in range(0, num_chunks):  # Start at 0, not negative
 		generate_chunk(i)
 	
 	var old_loot = get_node_or_null("LootBag")
@@ -124,6 +179,7 @@ func spawn_loot_bag():
 	var loot = loot_bag_scene.instantiate()
 	add_child(loot)
 	loot.global_position = Vector2(chamber_width / 2, floor.global_position.y - 30)
+	call_deferred("spawn_shop")
 
 # ===== GOAL ZONE =====
 
@@ -321,7 +377,18 @@ func generate_chunk(chunk_id: int):
 	
 	while current_y < chunk_y_end - 50:
 		spawn_platform_with_items(chunk_container, rng, current_y)
-		current_y += rng.randf_range(platform_min_spacing, platform_max_spacing)
+		
+		# UPDATED SPACING - FEWER PLATFORMS
+		var spacing_roll = rng.randf()
+		var spacing
+		if spacing_roll < 0.3:  # 30% chance - close
+			spacing = rng.randf_range(120.0, 200.0)  # Was 80-140
+		elif spacing_roll < 0.6:  # 30% chance - medium
+			spacing = rng.randf_range(200.0, 280.0)  # Was 140-200
+		else:  # 40% chance - far
+			spacing = rng.randf_range(280.0, 400.0)  # Was 200-300
+		
+		current_y += spacing
 	
 	active_chunks[chunk_id] = chunk_container
 
@@ -343,42 +410,54 @@ func spawn_platform_with_items(container: Node2D, rng: RandomNumberGenerator, y_
 		if child is Sprite2D or child is ColorRect or child is CollisionShape2D:
 			child.scale.x = width_scale
 	
-	# Spawn item on platform
+	# Spawn items on platform - MULTIPLE ITEMS NOW!
 	spawn_item_on_platform(platform, rng)
 
 func spawn_item_on_platform(platform: Node, rng: RandomNumberGenerator):
-	var roll = rng.randf()
+	"""Spawn multiple items on each platform - coins PLUS special items"""
 	
-	# Springs
-	if roll < spring_spawn_chance and spring_item_scene:
+	# 30% chance to spawn 1-2 coins per platform (was 50% chance)
+	if rng.randf() < 0.3:  # 30% chance - rarer coins
+		var num_coins = rng.randi_range(1, 2)  # 1-2 coins
+		for i in range(num_coins):
+			if collectible_scene:
+				var coin = collectible_scene.instantiate()
+				platform.add_child(coin)
+				# Spread coins across platform
+				var coin_x = rng.randf_range(-120.0, 120.0)
+				coin.position = Vector2(coin_x, -30)
+	
+	# Then roll for special items independently (can spawn multiple)
+	var spawn_offset_x = rng.randf_range(-150.0, 150.0)
+	
+	# Air bubble spawner (15% chance)
+	if rng.randf() < air_bubble_spawn_chance:
+		var spawner_script = preload("res://air_bubble_spawner.gd")
+		var spawner = Node2D.new()
+		spawner.set_script(spawner_script)
+		platform.add_child(spawner)
+		spawner.position = Vector2(spawn_offset_x, -30)
+		print("Created air bubble spawner on platform")
+	
+	# Spring (25% chance)
+	if rng.randf() < spring_spawn_chance and spring_item_scene:
 		var spring = spring_item_scene.instantiate()
 		platform.add_child(spring)
-		spring.position = Vector2(0, -30)
-		return
+		spawn_offset_x = rng.randf_range(-150.0, 150.0)  # New random position
+		spring.position = Vector2(spawn_offset_x, -30)
 	
-	# Ropes
-	if roll < spring_spawn_chance + rope_spawn_chance and rope_scene:
+	# Rope (15% chance) - keep centered
+	if rng.randf() < rope_spawn_chance and rope_scene:
 		var rope = rope_scene.instantiate()
 		platform.add_child(rope)
 		rope.position = Vector2(0, 0)
-		return
 	
-	# Extra jumps
-	if roll < spring_spawn_chance + rope_spawn_chance + extra_jump_spawn_chance and extra_jump_scene:
+	# Extra jump (40% chance)
+	if rng.randf() < extra_jump_spawn_chance and extra_jump_scene:
 		var extra_jump = extra_jump_scene.instantiate()
 		platform.add_child(extra_jump)
-		extra_jump.position = Vector2(0, -30)
-		return
-	
-	# Collectibles
-	if roll < spring_spawn_chance + rope_spawn_chance and rope_scene:
-			var rope = rope_scene.instantiate()
-			platform.add_child(rope)
-			rope.position = Vector2(0, 0)
-			# Randomize rope length between 200 and 600
-			if rope.has("rope_length"):
-				rope.rope_length = rng.randf_range(300.0, 800.0)
-			return	
+		spawn_offset_x = rng.randf_range(-150.0, 150.0)  # New random position
+		extra_jump.position = Vector2(spawn_offset_x, -30)
 
 func remove_chunk(chunk_id: int):
 	if active_chunks.has(chunk_id):

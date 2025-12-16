@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://brwgj2n6pmx4x"]
+
+[ext_resource type="Script" uid="uid://djw44vnsso8cn" path="res://air_bubble.gd" id="1_oispj"]
+[ext_resource type="Texture2D" uid="uid://bdyadcwl8qekj" path="res://Assets/Images/ring_texture.png" id="2_di3n2"]
+
+[node name="air_bubble" type="Area2D"]
+script = ExtResource("1_oispj")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-145, -65)
+scale = Vector2(0.08582868, -0.08429218)
+texture = ExtResource("2_di3n2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]

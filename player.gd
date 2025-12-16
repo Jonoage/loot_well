@@ -2,16 +2,16 @@ extends CharacterBody2D
 
 # Movement constants
 const SPEED = 400
-const ACCEL = 1000
-const DECEL = 1200
+const ACCEL = 1500  # Was 1000 - faster acceleration
+const DECEL = 2000  # Was 1200 - much faster stopping
 const JUMP_FORCE = -700
 const GRAVITY = 1800
 const MAX_FALL_SPEED = 1600
 
 # Health system
 const MAX_HEALTH = 100
-const FALL_DAMAGE_THRESHOLD = 1220.0  # Lower threshold - damage kicks in sooner
-const FALL_DAMAGE_MULTIPLIER = 0.025  # Higher multiplier - more damage per velocity
+const FALL_DAMAGE_THRESHOLD = 1220.0
+const FALL_DAMAGE_MULTIPLIER = 0.025
 var current_health = MAX_HEALTH
 var last_velocity_y = 0.0
 
@@ -27,6 +27,24 @@ var warning_label: Label = null
 var spring_count_label: Label = null
 var jump_count_label: Label = null
 var health_label: Label = null
+
+# Underwater mechanics
+var is_underwater := false
+var time_underwater := 0.0
+var drowning := false
+var drowning_time_left := 10.0
+var last_drowning_int := -1  # Track last printed integer value
+const UNDERWATER_TIME_BEFORE_DROWNING = 5.0
+const DROWNING_DURATION = 10.0
+const DROWNING_DAMAGE_PER_SECOND = 10
+
+# Underwater movement modifiers
+const UNDERWATER_SPEED_MULT = 0.6
+const UNDERWATER_GRAVITY_MULT = 0.4
+const UNDERWATER_JUMP_MULT = 0.8
+
+# UI for drowning
+var drowning_label: Label = null
 
 # Rope
 var on_rope: Node2D = null
@@ -50,6 +68,7 @@ func _ready():
 	create_spring_counter()
 	create_jump_counter()
 	create_health_display()
+	create_drowning_display()
 	
 	# Connect inventory signals
 	if inventory:
@@ -62,6 +81,55 @@ func _ready():
 	update_health_display()
 
 func _physics_process(delta):
+	# Handle underwater time and drowning
+	if is_underwater:
+		time_underwater += delta
+		
+		if time_underwater >= UNDERWATER_TIME_BEFORE_DROWNING:
+			if not drowning:
+				# Start drowning
+				drowning = true
+				drowning_time_left = DROWNING_DURATION
+				last_drowning_int = int(drowning_time_left)
+				print("DROWNING STARTED!")
+			
+			# Count down and take damage
+			drowning_time_left -= delta
+			
+			# Flash countdown - MOVES RANDOMLY EACH SECOND
+			if drowning_label:
+				drowning_label.visible = true
+				drowning_label.text = str(int(drowning_time_left)) + "s"
+				
+				# Debug print ONLY when integer changes
+				var current_int = int(drowning_time_left)
+				if current_int != last_drowning_int:
+					print("Drowning: ", current_int, "s left")
+					last_drowning_int = current_int
+					
+					# Move to random position near center each second
+					var viewport_size = get_viewport().get_visible_rect().size
+					var center_x = viewport_size.x / 2
+					var center_y = viewport_size.y / 2
+					# Random offset: ±100 pixels from center
+					var random_offset_x = randf_range(-100, 100)
+					var random_offset_y = randf_range(-100, 100)
+					drowning_label.position = Vector2(center_x + random_offset_x - 30, center_y + random_offset_y - 100)
+				
+				# Flash effect
+				var flash = int(drowning_time_left * 2) % 2
+				drowning_label.modulate = Color(1.0, 0.2, 0.2) if flash == 0 else Color(1.0, 0.5, 0.5)
+			
+			# Take damage over time
+			if drowning_time_left > 0:
+				var damage_this_frame = (DROWNING_DAMAGE_PER_SECOND * delta)
+				take_damage(int(damage_this_frame))
+			else:
+				# Out of time - instant death
+				current_health = 0
+				die()
+				return
+	
 	# Reset jumps when on floor
 	if is_on_floor():
 		jumps_used = 0
@@ -82,15 +150,33 @@ func _physics_process(delta):
 		handle_rope_movement(delta)
 	else:
 		# Normal movement
-		# Horizontal movement
+		# Horizontal movement (affected by water)
 		var input_x = Input.get_axis("ui_left", "ui_right")
-		if input_x != 0:
-			velocity.x = move_toward(velocity.x, input_x * SPEED, ACCEL * delta)
-		else:
-			velocity.x = move_toward(velocity.x, 0, DECEL * delta)
+		var current_speed = SPEED
+		var current_accel = ACCEL
+		var current_decel = DECEL
 		
-		# Gravity
-		velocity.y += GRAVITY * delta
+		# Reduce air control when jumping
+		if not is_on_floor():
+			current_accel *= 0.6  # 60% acceleration in air
+			current_decel *= 0.3  # 30% deceleration in air - keep momentum
+		
+		if is_underwater:
+			current_speed *= UNDERWATER_SPEED_MULT
+			current_accel *= UNDERWATER_SPEED_MULT
+			current_decel *= UNDERWATER_SPEED_MULT
+		
+		if input_x != 0:
+			velocity.x = move_toward(velocity.x, input_x * current_speed, current_accel * delta)
+		else:
+			velocity.x = move_toward(velocity.x, 0, current_decel * delta)
+		
+		# Gravity (affected by water)
+		var current_gravity = GRAVITY
+		if is_underwater:
+			current_gravity *= UNDERWATER_GRAVITY_MULT
+		
+		velocity.y += current_gravity * delta
 		if velocity.y > MAX_FALL_SPEED:
 			velocity.y = MAX_FALL_SPEED
 		
@@ -104,6 +190,38 @@ func _physics_process(delta):
 			velocity.y += GRAVITY * delta * 0.5
 	
 	move_and_slide()
+
+func enter_water():
+	"""Called when player enters water"""
+	is_underwater = true
+	show_warning("Entering water...")
+
+func exit_water():
+	"""Called when player exits water"""
+	is_underwater = false
+	time_underwater = 0.0
+	drowning = false
+	drowning_time_left = DROWNING_DURATION
+	last_drowning_int = -1  # Reset the tracker
+	
+	if drowning_label:
+		drowning_label.visible = false
+	
+	show_warning("Air!")
+
+func reset_air_timer():
+	"""Called when player collects an air bubble"""
+	if is_underwater:
+		time_underwater = 0.0
+		drowning = false
+		drowning_time_left = DROWNING_DURATION
+		last_drowning_int = int(drowning_time_left)  # Reset to current value
+		
+		if drowning_label:
+			drowning_label.visible = false
+		
+		show_warning("+AIR!")
+		print("Air timer reset by bubble!")
 
 func _input(event):
 	if event is InputEventKey and event.pressed:
@@ -119,7 +237,6 @@ func _input(event):
 # ===== HEALTH SYSTEM =====
 
 func check_fall_damage():
-	print("Landing velocity: ", last_velocity_y, " Threshold: ", FALL_DAMAGE_THRESHOLD)
 	if last_velocity_y > FALL_DAMAGE_THRESHOLD:
 		var excess_velocity = last_velocity_y - FALL_DAMAGE_THRESHOLD
 		var damage = int(excess_velocity * FALL_DAMAGE_MULTIPLIER)
@@ -177,7 +294,11 @@ func can_jump() -> bool:
 	return jumps_used < total_jumps
 
 func do_jump():
-	velocity.y = JUMP_FORCE
+	var jump_force = JUMP_FORCE
+	if is_underwater:
+		jump_force *= UNDERWATER_JUMP_MULT
+	
+	velocity.y = jump_force
 	jumps_used += 1
 	
 	# Consume an extra jump if we're past the base jump
@@ -264,6 +385,20 @@ func create_health_display():
 	health_label.modulate = Color(1.0, 0.3, 0.3)
 	canvas_layer.add_child(health_label)
 
+func create_drowning_display():
+	var canvas_layer = get_node_or_null("SpringCounterUI")
+	if not canvas_layer:
+		canvas_layer = CanvasLayer.new()
+		canvas_layer.name = "DrowningUI"
+		add_child(canvas_layer)
+	
+	drowning_label = Label.new()
+	drowning_label.add_theme_font_size_override("font_size", 48)
+	drowning_label.modulate = Color(1.0, 0.2, 0.2)
+	drowning_label.visible = false
+	drowning_label.z_index = 200
+	canvas_layer.add_child(drowning_label)
+
 func update_spring_count():
 	if spring_count_label and inventory:
 		var count = inventory.count_item_by_id("spring")
@@ -339,6 +474,11 @@ func deploy_spring():
 		var facing_direction = -1 if scale.x > 0 else 1
 		var offset = Vector2(60 * facing_direction, -30)
 		spring.global_position = global_position + offset
+		
+		# Make spring a physics object if it's a RigidBody2D
+		if spring is RigidBody2D:
+			spring.linear_velocity = velocity * 0.5
+			spring.gravity_scale = 1.0
 
 # ===== UTILITY =====
 

@@ -11,9 +11,7 @@ signal picked_up(item)
 var player_nearby := false
 var player_ref: Node2D = null
 
-func _ready():
-	body_entered.connect(_on_body_entered)
-	body_exited.connect(_on_body_exited)
+
 
 func _process(_delta):
 	if can_pickup and player_nearby and Input.is_action_just_pressed(pickup_key):
@@ -28,14 +26,19 @@ func _on_body_entered(body):
 		else:
 			# Auto-collect items like coins
 			collected.emit()
-			GameManager.add_coin()
-			if player_ref.has_method("add_to_inventory"):
+			
+			# Only add coin if this is actually a coin
+			if item_id == "coin":
+				GameManager.add_coin()
+			
+			# Use 'body' directly instead of 'player_ref'
+			if body.has_method("add_to_inventory"):
 				var item_data = {
 					"name": item_name,
 					"id": item_id,
 					"scene": scene_file_path
 				}
-				player_ref.add_to_inventory(item_data)
+				body.add_to_inventory(item_data)
 			queue_free()
 
 func _on_body_exited(body):

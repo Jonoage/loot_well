@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cqq2v5d7cm147" path="res://player.gd" id="1_1bvp3"]
 [ext_resource type="Script" uid="uid://7rqm1vvxywi8" path="res://chamber_generator.gd" id="1_kek77"]
+[ext_resource type="PackedScene" uid="uid://cy3nrnu8ndnmo" path="res://shop.tscn" id="2_2cqfq"]
 [ext_resource type="PackedScene" uid="uid://cuuelkrybnq10" path="res://basic_platform.tscn" id="2_4c57u"]
 [ext_resource type="Texture2D" uid="uid://dhfbgvgeyurfh" path="res://Assets/Images/hexman.png" id="2_lquwl"]
 [ext_resource type="PackedScene" uid="uid://cw4kvhjm3rm2y" path="res://collectible.tscn" id="3_efxa6"]
@@ -13,8 +14,7 @@
 [ext_resource type="Script" uid="uid://ds6u5n4vvymbd" path="res://loot_label.gd" id="7_272bh"]
 [ext_resource type="Script" uid="uid://cvwdnudwp3qql" path="res://inventory.gd" id="7_efxa6"]
 [ext_resource type="Texture2D" uid="uid://wemotvisadqp" path="res://Assets/Images/Godoy.png" id="8_5vw27"]
-[ext_resource type="Script" uid="uid://bj0vkpfgv15pr" path="res://item.gd" id="10_dg77c"]
-[ext_resource type="Texture2D" uid="uid://bdyadcwl8qekj" path="res://Assets/Images/ring_texture.png" id="11_ycdy4"]
+[ext_resource type="Script" uid="uid://56p1w22nvuya" path="res://debug_ui.gd" id="17_yaehf"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5vw27"]
 radius = 22.0
@@ -22,6 +22,7 @@ height = 50.0
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_kek77")
+shop_scene = ExtResource("2_2cqfq")
 sky_color = Color(0.47843137, 0.627451, 0.88235295, 1)
 platform_scenes = Array[PackedScene]([ExtResource("2_4c57u")])
 collectible_scene = ExtResource("3_efxa6")
@@ -52,19 +53,13 @@ position = Vector2(-1, -4)
 shape = SubResource("CapsuleShape2D_5vw27")
 
 [node name="Camera2D" type="Camera2D" parent="CharacterBody2D"]
+limit_enabled = false
 
 [node name="Inventory" type="Node" parent="CharacterBody2D"]
 script = ExtResource("7_efxa6")
 
-[node name="collectible" parent="." instance=ExtResource("3_efxa6")]
-visible = false
-position = Vector2(587, 1738)
-
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("7_efxa6")
-
-[node name="basic_platform" parent="." instance=ExtResource("2_4c57u")]
-position = Vector2(355, 214)
 
 [node name="TextureRect" type="TextureRect" parent="."]
 visible = false
@@ -75,17 +70,5 @@ offset_bottom = 47.0
 scale = Vector2(57.530506, 62.781395)
 texture = ExtResource("8_5vw27")
 
-[node name="item" type="Area2D" parent="."]
-visible = false
-script = ExtResource("10_dg77c")
-
-[node name="Sprite2D" type="Sprite2D" parent="item"]
-position = Vector2(-145, -65)
-scale = Vector2(0.08582868, -0.08429218)
-texture = ExtResource("11_ycdy4")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="item"]
-
-[node name="rope" parent="." instance=ExtResource("6_vivmo")]
-
-[node name="extra_jump" parent="." instance=ExtResource("5_w48qg")]
+[node name="DebugUI" type="CanvasLayer" parent="."]
+script = ExtResource("17_yaehf")

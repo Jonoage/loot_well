@@ -1,8 +1,8 @@
 extends Area2D
+
 # ===== LOOT_BAG.GD =====
 # Create a loot bag collectible scene with this script
 # Scene: Area2D > Sprite2D + CollisionShape2D
-
 
 signal picked_up
 
@@ -40,4 +40,14 @@ func pickup():
 		if player_ref.add_to_inventory(item_data):
 			picked_up.emit()
 			print("Loot bag picked up! Bring it to the goal!")
+			
+			# NEW: Trigger the water to start rising
+			var chamber = get_tree().get_first_node_in_group("chamber_generator")
+			if chamber and chamber.has_method("start_water_rising"):
+				chamber.start_water_rising()
+			
+			# NEW: Warn the player
+			if player_ref.has_method("show_warning"):
+				player_ref.show_warning("WATER IS RISING! ESCAPE!")
+			
 			queue_free()
